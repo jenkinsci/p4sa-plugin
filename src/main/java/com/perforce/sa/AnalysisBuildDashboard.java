@@ -5,60 +5,42 @@ import hudson.model.Action;
 
 public class AnalysisBuildDashboard implements Action {
 
-    private final EnvVars env;
-    private final AnalysisBuilderConfig analysisConfig;
+    private String validatePortalURL;
+    private String displayName;
 
     public AnalysisBuildDashboard(EnvVars env, AnalysisBuilderConfig analysisConfig) {
-        this.env = env;
-        this.analysisConfig = analysisConfig;
-    }
-
-    public String getValidateBuildUrlLink() {
-        String validatePortalURL = "";
         String projectUrlName = "";
-        if (getAnalysisConfig().getValidateProjectId() == null) {
-            projectUrlName = getAnalysisConfig().getValidateProjectName();
+        if (analysisConfig.getValidateProjectId() == null) {
+            projectUrlName = analysisConfig.getValidateProjectName();
         } else {
-            projectUrlName = getAnalysisConfig().getValidateProjectId();
+            projectUrlName = analysisConfig.getValidateProjectId();
         }
-        if (getAnalysisConfig().getAnalysisType().equals("Baseline")) {
-            validatePortalURL =
-                    UtilityFunctions.getValidateServerURL(getAnalysisConfig().getValidateProjectURL())
-                            + "/review/insight-review.html#issuelist_goto:project="
-                            + projectUrlName
-                            + ",searchquery=build%253A'"
-                            + UtilityFunctions.resolveEnvVarsInConfig(
-                                    getEnv(), getAnalysisConfig().getScanBuildName())
-                            + "'";
+        if (analysisConfig.getAnalysisType().equals("Baseline")) {
+            this.validatePortalURL = UtilityFunctions.getValidateServerURL(analysisConfig.getValidateProjectURL())
+                    + "/review/insight-review.html#issuelist_goto:project="
+                    + projectUrlName
+                    + ",searchquery=build%253A'"
+                    + UtilityFunctions.resolveEnvVarsInConfig(env, analysisConfig.getScanBuildName())
+                    + "'";
         } else {
-            validatePortalURL =
-                    UtilityFunctions.getValidateServerURL(getAnalysisConfig().getValidateProjectURL())
-                            + "/review/insight-review.html#issuelist_goto:project="
-                            + projectUrlName
-                            + ",searchquery=ci%253A'"
-                            + UtilityFunctions.resolveEnvVarsInConfig(
-                                    getEnv(), getAnalysisConfig().getScanBuildName())
-                            + "'";
+            this.validatePortalURL = UtilityFunctions.getValidateServerURL(analysisConfig.getValidateProjectURL())
+                    + "/review/insight-review.html#issuelist_goto:project="
+                    + projectUrlName
+                    + ",searchquery=ci%253A'"
+                    + UtilityFunctions.resolveEnvVarsInConfig(env, analysisConfig.getScanBuildName())
+                    + "'";
         }
-        return validatePortalURL;
-    }
-
-    public AnalysisBuilderConfig getAnalysisConfig() {
-        return analysisConfig;
-    }
-
-    public EnvVars getEnv() {
-        return env;
+        this.displayName = analysisConfig.getEngine() + " Scan Results";
     }
 
     @Override
     public String getUrlName() {
-        return getValidateBuildUrlLink();
+        return this.validatePortalURL;
     }
 
     @Override
     public String getDisplayName() {
-        return analysisConfig.getEngine() + " Scan Results";
+        return this.displayName;
     }
 
     @Override
