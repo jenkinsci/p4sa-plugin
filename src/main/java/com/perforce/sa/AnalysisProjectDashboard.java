@@ -4,33 +4,23 @@ import hudson.model.Action;
 
 public class AnalysisProjectDashboard implements Action {
 
-    private final AnalysisBuilderConfig analysisConfig;
+    private String validatePortalURL;
 
     public AnalysisProjectDashboard(AnalysisBuilderConfig analysisConfig) {
-        this.analysisConfig = analysisConfig;
-    }
-
-    public String getValidateProjectUrlLink() {
         String projectURLName = "";
-        if (getAnalysisConfig().getValidateProjectId() == null) {
-            projectURLName = getAnalysisConfig().getValidateProjectName();
+        if (analysisConfig.getValidateProjectId() == null) {
+            projectURLName = analysisConfig.getValidateProjectName();
         } else {
-            projectURLName = getAnalysisConfig().getValidateProjectId();
+            projectURLName = analysisConfig.getValidateProjectId();
         }
-        String validatePortalURL =
-                UtilityFunctions.getValidateServerURL(getAnalysisConfig().getValidateProjectURL())
-                        + "/review/insight-review.html#reportviewer_goto:project="
-                        + projectURLName;
-        return validatePortalURL;
-    }
-
-    public AnalysisBuilderConfig getAnalysisConfig() {
-        return analysisConfig;
+        this.validatePortalURL = UtilityFunctions.getValidateServerURL(analysisConfig.getValidateProjectURL())
+                + "/review/insight-review.html#reportviewer_goto:project="
+                + projectURLName;
     }
 
     @Override
     public String getUrlName() {
-        return getValidateProjectUrlLink();
+        return this.validatePortalURL;
     }
 
     @Override
