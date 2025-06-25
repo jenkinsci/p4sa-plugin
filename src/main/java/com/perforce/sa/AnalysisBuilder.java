@@ -44,6 +44,7 @@ public class AnalysisBuilder extends Builder implements SimpleBuildStep {
             getAnalysisConfig().setUsingBuildCaptureFile(false);
         }
         listener.getLogger().println("Starting Perforce Static Analysis Scan");
+        String deltaBuildURL = null;
         for (ArgumentListBuilder cmd : AnalysisCommands.getAnalysisCommand(
                 listener,
                 getAnalysisConfig().getEngine(),
@@ -55,21 +56,29 @@ public class AnalysisBuilder extends Builder implements SimpleBuildStep {
                 getAnalysisConfig().getValidateProjectURL(),
                 getAnalysisConfig().getScanBuildName(),
                 getAnalysisConfig().getRestrictionFileList())) {
-            if (getAnalysisConfig().getEngine().equalsIgnoreCase("qac")
-                    && getAnalysisConfig().isEnableQualityGate()
-                    && getAnalysisConfig().getAnalysisType().equalsIgnoreCase("delta")) {
+            if (getAnalysisConfig().getAnalysisType().equalsIgnoreCase("delta")) {
                 BufferedReader response = UtilityFunctions.executeCommandParseOutput(launcher, workspace, env, cmd);
                 if (response != null) {
                     String line = null;
+                    Boolean grabURL = false;
                     while ((line = response.readLine()) != null) {
                         listener.getLogger().println(line);
-                        if (line.trim().toLowerCase().contains("build status: unstable")) {
+                        if (grabURL) {
+                            deltaBuildURL = line.trim();
+                            grabURL = false;
+                        }
+                        if (getAnalysisConfig().isEnableQualityGate()
+                                && getAnalysisConfig().getEngine().equalsIgnoreCase("qac")
+                                && line.trim().toLowerCase().contains("build status: unstable")) {
                             listener.getLogger().println("issues found for quality gate");
                             if (getAnalysisConfig().getJobResult().equals("Failure")) {
                                 run.setResult(Result.FAILURE);
                             } else if (getAnalysisConfig().getJobResult().equals("Unstable")) {
                                 run.setResult(Result.UNSTABLE);
                             }
+                        }
+                        if (line.trim().toLowerCase().contains("use the link to view uploaded ci issues:")) {
+                            grabURL = true;
                         }
                     }
                 }
@@ -117,7 +126,7 @@ public class AnalysisBuilder extends Builder implements SimpleBuildStep {
         getAnalysisConfig()
                 .setValidateProjectId(
                         UtilityFunctions.getValidateProjectId(getAnalysisConfig(), launcher, workspace, env));
-        run.addAction(new AnalysisBuildDashboard(env, getAnalysisConfig()));
+        run.addAction(new AnalysisBuildDashboard(env, getAnalysisConfig(), deltaBuildURL));
     }
 
     @Override
