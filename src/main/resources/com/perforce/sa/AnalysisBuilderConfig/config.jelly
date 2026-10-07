@@ -35,15 +35,6 @@
         </f:entry>
     </f:optionalBlock>
 
-    <f:optionalBlock name="enableQualityGate" title="${%Enable Quality Gate}" checked="${instance.enableQualityGate}" inline="true" field="enableQualityGate">
-        <f:entry title="Set Job Result" field="jobResult" description="">
-            <f:entry>
-                <f:radio name="jobResult" title="Unstable" value="Unstable" checked="${instance.jobResult == 'Unstable'}" />
-                <f:radio name="jobResult" title="Failure" value="Failure" checked="${instance.jobResult == 'Failure'}" />
-            </f:entry>
-        </f:entry>
-    </f:optionalBlock>
-
     <f:advanced title="${%Extra Options}">
         <f:entry title="${%Scan Build Name}" field="scanBuildName">
             <f:textbox default="$BUILD_TAG"/>
@@ -52,6 +43,15 @@
         <f:entry title="${%Analysis Working Set Filename}" field="restrictionFileList">
             <f:textbox/>
         </f:entry>
+
+        <f:optionalBlock name="enableQualityGate" title="${%Enable Quality Gate}" checked="${instance.enableQualityGate}" inline="true" field="enableQualityGate">
+        <f:entry title="Set Job Result" field="jobResult" description="">
+            <f:entry>
+                <f:radio name="jobResult" title="Unstable" value="Unstable" checked="${instance.jobResult == 'Unstable'}" />
+                <f:radio name="jobResult" title="Failure" value="Failure" checked="${instance.jobResult == 'Failure'}" />
+            </f:entry>
+        </f:entry>
+    </f:optionalBlock>
     </f:advanced>
 
 </j:jelly>
